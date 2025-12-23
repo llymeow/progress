@@ -1,7 +1,7 @@
 <template>
   <van-popup v-model:show="visible" position="bottom" :style="{ height: '90%' }">
     <van-nav-bar
-      :title="form.id ? '编辑任务' : '新增任务'"
+      :title="form.id ? '编辑' : '新增'"
       left-text="取消"
       right-text="保存"
       @click-left="onCancel"
@@ -9,7 +9,7 @@
     />
 
     <van-form :model="form">
-      <van-field v-model="form.name" label="任务名称" placeholder="请输入任务名" required />
+      <van-field v-model="form.name" label="名称" placeholder="请输入" required />
       <van-field label="总进度">
         <template #input>
           <van-stepper v-model="form.total" min="1" />
@@ -20,7 +20,7 @@
           <van-stepper v-model="form.done" min="0" :max="form.total" />
         </template>
       </van-field>
-      <van-field label="标签颜色">
+      <van-field label="">
         <template #input>
           <div class="color-options">
             <div
@@ -36,8 +36,8 @@
       </van-field>
       <van-field
         v-model="form.date"
-        label="任务日期"
-        placeholder="点击选择日期"
+        label="日期"
+        placeholder="点击选择"
         readonly
         @click="showDatePicker = true"
       />
@@ -49,41 +49,6 @@
       />
     </van-form>
   </van-popup>
-
-  <!-- <el-dialog
-    :model-value="modelValue"
-    :title="form.id ? '编辑任务' : '新增任务'"
-    width="90%"
-    @close="handleClose"
-    @update:modelValue="emit"
-  >
-    <el-form :model="form" label-width="80px">
-      <el-form-item label="名称">
-        <el-input v-model="form.name" />
-      </el-form-item>
-
-      <el-form-item label="总进度">
-        <el-input-number v-model="form.total" :min="1" />
-      </el-form-item>
-
-      <el-form-item label="当前进度">
-        <el-input-number v-model="form.done" :min="0" :max="form.total" />
-      </el-form-item>
-
-      <el-form-item label="标签颜色">
-        <el-color-picker v-model="form.color" :predefine="rainbowColors" show-alpha="{false}" />
-      </el-form-item>
-
-      <el-form-item label="日期">
-        <el-date-picker v-model="form.date" type="date" />
-      </el-form-item>
-    </el-form>
-
-    <template #footer>
-      <el-button @click="$emit('cancel')">取消</el-button>
-      <el-button type="primary" @click="onSubmit">确认</el-button>
-    </template>
-  </el-dialog> -->
 </template>
 
 <script setup lang="ts">
@@ -101,9 +66,18 @@ const showDatePicker = ref(false)
 
 watch(
   () => props.modelValue,
-  (val) => (visible.value = val),
+  (val) => {
+    visible.value = val
+
+    if (val) {
+      if (props.task) {
+        form.value = { ...props.task }
+      } else {
+        resetForm()
+      }
+    }
+  },
 )
-watch(visible, (val) => emit('update:modelValue', val))
 
 interface Task {
   id?: string
@@ -115,6 +89,7 @@ interface Task {
 }
 
 const form = ref<Task>({
+  id: '',
   name: '',
   total: 10,
   done: 0,
@@ -134,11 +109,11 @@ const rainbowColors = [
 
 function resetForm() {
   form.value = {
-    id: undefined,
+    id: '',
     name: '',
     total: 10,
     done: 0,
-    color: '#409EFF',
+    color: rainbowColors[0],
     date: '',
   }
 }
@@ -160,29 +135,19 @@ function onCancel() {
   emit('cancel')
   visible.value = false
 }
-
-watch(
-  () => props.task,
-  (val) => {
-    if (val) form.value = { ...val }
-    else resetForm()
-  },
-  { immediate: true },
-)
 </script>
 
 <style scoped>
 .color-options {
   display: flex;
-  gap: 8px;
-  padding: 4px 0;
+  gap: 20px;
+  padding: 2px 30px;
 }
 .color-dot {
   width: 24px;
   height: 24px;
   border-radius: 50%;
   border: 2px solid transparent;
-  cursor: pointer;
 }
 .color-dot.active {
   border-color: #000;

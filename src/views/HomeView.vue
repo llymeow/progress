@@ -9,14 +9,16 @@
       :icon="Plus"
       @click="openDialog()"
     ></el-button>
-    <TaskCard
-      v-for="task in tasks"
-      :key="task.name"
-      :task="task"
-      @edit="openDialog"
-      @delete="deleteTaskById"
-      @increment="incrementTaskProgress"
-    />
+    <draggable handle=".drag-handle" animation="200" v-model="tasks" item-key="id" @end="onDragEnd">
+      <template #item="{ element }">
+        <TaskCard
+          :task="element"
+          @edit="openDialog"
+          @delete="deleteTaskById"
+          @increment="incrementTaskProgress"
+        />
+      </template>
+    </draggable>
     <TaskDialog
       v-model:modelValue="showDialog"
       :task="editingTask"
@@ -30,13 +32,14 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { fetchTasks, createTask, updateTask, deleteTask } from '../api/task'
+import draggable from 'vuedraggable'
+import { fetchTasks, createTask, updateTask, deleteTask } from '../db/taskStore'
 import TaskCard from '../components/TaskCard.vue'
 import TaskDialog from '../components/TaskDialog.vue'
 
 onMounted(async () => {
   const res = await fetchTasks()
-  tasks.value = res.data
+  tasks.value = res.sort((a, b) => a.order - b.order)
 })
 
 interface Task {
@@ -46,6 +49,7 @@ interface Task {
   done: number
   color: string
   date: string | null
+  order: number // 新增排序25-12-23
 }
 
 const tasks = ref<Task[]>([])
@@ -62,18 +66,35 @@ async function saveTask(task: Task) {
     ElMessage.warning('请填写完整的任务信息')
     return
   }
+
   if (task.id) {
     // 更新任务
     const res = await updateTask(task)
     const index = tasks.value.findIndex((t) => t.id === task.id)
-    tasks.value[index] = res.data
+    if (index !== -1) {
+      tasks.value[index] = res
+    }
   } else {
     // 创建任务
     const res = await createTask(task)
-    tasks.value.push(res.data)
+    tasks.value.push(res)
   }
+
   showDialog.value = false
 }
+
+async function onDragEnd() {
+  for (let i = 0; i < tasks.value.length; i++) {
+    const task = tasks.value[i]
+
+    // 更新顺序
+    task.order = i
+
+    // 关键：转成普通对象
+    await updateTask({ ...task })
+  }
+}
+
 async function incrementTaskProgress(task: Task) {
   if (task.done >= task.total) return // 防止超过总数
 
@@ -84,7 +105,7 @@ async function incrementTaskProgress(task: Task) {
   // 更新本地任务列表
   const index = tasks.value.findIndex((t) => t.id === task.id)
   if (index !== -1) {
-    tasks.value[index] = res.data
+    tasks.value[index] = res
   }
 }
 async function deleteTaskById(id: string) {

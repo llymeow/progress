@@ -1,10 +1,14 @@
 <template>
   <van-swipe-cell>
-    <el-card class="task-card" shadow="always">
+    <el-card class="task-card">
+      <div class="drag-handle">≡</div>
       <div class="card-header">
         <div class="task-title">
           {{ task.name }} <span class="progress-info">{{ task.done }}/{{ task.total }}</span>
         </div>
+        <span class="task-date">
+          {{ formatDate(task.date) }}
+        </span>
         <div class="card-actions">
           <el-button
             class="edit-btn"
@@ -22,12 +26,7 @@
         </div>
       </div>
 
-      <el-progress
-        :percentage="percentage"
-        :stroke-width="10"
-        :show-text="true"
-        :color="task.color || '#409EFF'"
-      />
+      <el-progress :percentage="percentage" :show-text="true" :color="task.color || '#409EFF'" />
     </el-card>
     <template #right>
       <el-button
@@ -44,6 +43,7 @@
 
 <script setup lang="ts">
 import { computed, defineProps } from 'vue'
+import dayjs from 'dayjs'
 import { Edit, Delete, Plus } from '@element-plus/icons-vue'
 import { showConfirmDialog } from 'vant'
 
@@ -52,6 +52,7 @@ interface Task {
   done: number
   total: number
   color?: string
+  date: string
 }
 
 const props = defineProps<{
@@ -62,6 +63,10 @@ const emit = defineEmits(['increment', 'edit', 'delete'])
 const percentage = computed(() =>
   props.task.total ? Math.round((props.task.done / props.task.total) * 100) : 0,
 )
+function formatDate(date?: string) {
+  if (!date) return ''
+  return dayjs(date).format('MM/DD (ddd)')
+}
 
 function confirmDelete() {
   showConfirmDialog({
@@ -75,17 +80,24 @@ function confirmDelete() {
       /* 用户取消操作 */
     })
 }
-// const isComplete = computed(() => percentage.value >= 100)
-// function formatProgress() {
-//   return isComplete.value ? 'Done' : `${percentage.value}%`
-// }
 </script>
 
 <style scoped>
 .task-card {
+  background: #fff;
   margin-bottom: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06); /* 柔和浅灰边框 */
   border-radius: 12px;
   position: relative;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.drag-handle {
+  float: inline-start;
+  padding: 0 8px;
+  color: #999;
+  font-size: 18px;
+  cursor: grab;
 }
 
 .card-header {
@@ -93,6 +105,11 @@ function confirmDelete() {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+}
+
+.task-date {
+  margin-right: 6px;
+  color: #d3d3d3;
 }
 
 .card-actions {
