@@ -109,6 +109,7 @@ function confirmDelete() {
 
 .task-date {
   margin-right: 6px;
+  font-size: 12px;
   color: #d3d3d3;
 }
 
