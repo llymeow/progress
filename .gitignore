@@ -7,17 +7,26 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies & build
 node_modules
-.DS_Store
 dist
 dist-ssr
 coverage
-*.local
+.vite
 
+# Local env
+*.local
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# Cypress
 /cypress/videos/
 /cypress/screenshots/
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -27,4 +36,8 @@ coverage
 *.sln
 *.sw?
 
+# TS cache
 *.tsbuildinfo
+
+# Netlify
+.netlify
