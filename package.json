@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
+    "preview": "serve -l 8080 dist",
+    "update": "npm run build && npm run preview",
     "build-only": "vite build",
     "type-check": "vue-tsc -noEmit",
     "lint": "eslint . --fix",
@@ -15,12 +16,15 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.10.0",
+    "dayjs": "^1.11.19",
     "element-plus": "^2.10.2",
     "express": "^4.21.2",
+    "idb": "^8.0.3",
     "pinia": "^3.0.1",
     "vant": "^4.9.20",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",
@@ -38,6 +42,7 @@
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
     "vite": "^6.2.4",
+    "vite-plugin-pwa": "^1.0.0",
     "vite-plugin-vue-devtools": "^7.7.2",
     "vue-tsc": "^2.2.8"
   },
