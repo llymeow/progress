@@ -5,6 +5,9 @@ import App from './App.vue'
 import router from './router'
 import 'vant/lib/index.css'
 import { Popup, NavBar, Form, Field, Stepper, Calendar, Button, SwipeCell, Dialog } from 'vant'
+import './styles/theme.css'
+import { initTheme } from './utils/theme'
+initTheme() // ⭐ 在 app 挂载前执行
 
 const app = createApp(App)
 app.use(Popup)

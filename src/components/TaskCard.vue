@@ -84,7 +84,6 @@ function confirmDelete() {
 
 <style scoped>
 .task-card {
-  background: #fff;
   margin-bottom: 16px;
   border: 1px solid rgba(0, 0, 0, 0.06); /* 柔和浅灰边框 */
   border-radius: 12px;

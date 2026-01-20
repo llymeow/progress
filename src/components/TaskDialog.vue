@@ -44,6 +44,8 @@
       <van-calendar
         v-model:show="showDatePicker"
         @confirm="onDateConfirm"
+        :min-date="minDate"
+        :max-date="maxDate"
         :show-confirm="true"
         :show-title="false"
       />
@@ -63,6 +65,9 @@ const props = defineProps<{
 const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
 const visible = ref(false)
 const showDatePicker = ref(false)
+// Vant Calendar 默认 min-date 是今天；这里放开限制，允许选择任意日期（过去/未来）
+const minDate = new Date(1970, 0, 1)
+const maxDate = new Date(2099, 11, 31)
 
 watch(
   () => props.modelValue,
