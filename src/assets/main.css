@@ -6,20 +6,46 @@
   margin: 0 auto;
   min-height: 100vh;
   overflow-x: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 
+/* Apple Health 风格链接 */
 a,
 .blue {
   text-decoration: none;
-  color: hsla(196, 100%, 37%, 1);
-  transition: 0.4s;
+  color: var(--color-primary);
+  transition: opacity 0.2s ease;
   padding: 3px;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(196, 100%, 37%, 0.2);
+    opacity: 0.7;
   }
+}
+
+/* 分组标题 */
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  letter-spacing: -0.02em;
+}
+
+/* 卡片容器 */
+.card-container {
+  background: var(--color-background-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-card);
+}
+
+/* 分割线 */
+.divider {
+  height: 1px;
+  background: var(--color-separator);
+  margin: var(--spacing-md) 0;
 }
 
 @media (min-width: 1024px) {
