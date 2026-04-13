@@ -20,6 +20,13 @@
     <div class="about-section">
       <h2 class="section-heading">版本历史</h2>
       <div class="version-list">
+         <div class="version-item">
+          <div class="version-header">
+            <span class="version-badge">v2.0.0</span>
+            <span class="version-date">26-04-13</span>
+          </div>
+          <p class="version-description">UI全面更新；区分任务状态</p>
+        </div>
         <div class="version-item">
           <div class="version-header">
             <span class="version-badge">v1.0.2</span>
