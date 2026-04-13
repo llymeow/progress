@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import { computed } from 'vue'
 import { isDark, toggleTheme } from './utils/theme'
 
-const icon = computed(() => (isDark.value ? '🌙' : '☀️'))
+const icon = computed(() => (isDark.value ? 'moon' : 'sun'))
 
 function onToggle() {
   toggleTheme()
@@ -11,113 +11,129 @@ function onToggle() {
 </script>
 
 <template>
-  <header>
-    <button class="theme-btn" type="button" @click="onToggle" aria-label="Toggle theme">
-      <span class="theme-icon" aria-hidden="true">{{ icon }}</span>
-    </button>
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+  <div class="app-container">
+    <header class="app-header">
+      <button class="theme-btn" type="button" @click="onToggle" aria-label="Toggle theme">
+        <svg v-if="icon === 'sun'" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      
+      <nav class="app-nav">
+        <RouterLink to="/" class="nav-link" active-class="active">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>首页</span>
+        </RouterLink>
+        <RouterLink to="/about" class="nav-link" active-class="active">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 16v-4M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>关于</span>
+        </RouterLink>
       </nav>
-    </div>
-  </header>
+    </header>
 
-  <RouterView />
+    <main class="app-main">
+      <RouterView />
+    </main>
+  </div>
 </template>
 
 <style scoped>
-/* 主题切换按钮（右上角悬浮） */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-background-secondary);
+  padding: var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+html.dark .app-header {
+  background: var(--color-background);
+}
+
 .theme-btn {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-background-card);
+  color: var(--color-text-secondary);
+  box-shadow: var(--shadow-card);
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .theme-btn:hover {
-  transform: translateY(-1px);
+  color: var(--color-primary);
 }
 
 .theme-btn:active {
-  transform: translateY(0);
+  transform: scale(0.95);
 }
 
-.theme-icon {
-  font-size: 18px;
-  line-height: 1;
+.app-nav {
+  display: flex;
+  gap: var(--spacing-xs);
+  background: var(--color-background-card);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
 }
 
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.nav-link:hover {
+  color: var(--color-text-primary);
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.nav-link.active {
+  background: var(--color-primary);
+  color: white;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.nav-link.active svg {
+  stroke: white;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
+.app-main {
+  flex: 1;
 }
 
 @media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+  .app-header {
+    padding: var(--spacing-lg);
   }
 }
-
 </style>

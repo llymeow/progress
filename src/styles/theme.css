@@ -1,45 +1,126 @@
-/* ====== 基础 ====== */
+/* ====== Apple Health 风格主题 ====== */
+
 html,
 body {
-  background: #f7f8fa;
-  color: #1f1f1f;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ====== 夜间模式 ====== */
 html.dark,
 html.dark body {
-  background: #121212;
-  color: #e5e5e5;
+  background: var(--color-background);
+  color: var(--color-text-primary);
 }
 
 /* ====== App 容器 ====== */
 #app {
-  background: #f7f8fa;
-  transition: background-color 0.25s ease;
+  background: var(--color-background-secondary);
+  transition: background-color 0.3s ease;
 }
 
 html.dark #app {
-  background: #121212;
-  color: #e5e5e5;
+  background: var(--color-background);
 }
 
-/* ====== 卡片 ====== */
+/* ====== 卡片样式 ====== */
 .task-card {
-  background: #f7f8fa;
+  background: var(--color-background-card);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
 
 html.dark .task-card {
-  background: #1e1e1e;
-  border-color: #2a2a2a;
-  color: #e5e5e5;
+  background: var(--color-background-card);
+  border: none;
 }
 
 /* ====== Header ====== */
 header {
-  background: #f7f8fa;
+  background: transparent;
 }
 
 html.dark header {
-  background: #121212;
+  background: transparent;
+}
+
+/* ====== Element Plus 覆盖 ====== */
+.el-card {
+  --el-card-border-color: transparent;
+  --el-card-border-radius: var(--radius-lg);
+  border: none;
+  box-shadow: var(--shadow-card);
+}
+
+html.dark .el-card {
+  --el-card-bg-color: var(--color-background-card);
+  background: var(--color-background-card);
+}
+
+/* 进度条样式覆盖 */
+.el-progress-bar__outer {
+  background-color: var(--color-separator);
+  border-radius: 10px;
+}
+
+.el-progress-bar__inner {
+  border-radius: 10px;
+}
+
+/* 按钮样式覆盖 */
+.el-button--primary {
+  --el-button-bg-color: var(--color-primary);
+  --el-button-border-color: var(--color-primary);
+}
+
+.el-button.is-circle {
+  border-radius: 50%;
+}
+
+/* ====== Vant 组件覆盖 ====== */
+.van-popup {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+html.dark .van-popup {
+  background: var(--color-background-secondary);
+}
+
+.van-nav-bar {
+  background: transparent;
+}
+
+html.dark .van-nav-bar {
+  background: transparent;
+}
+
+html.dark .van-nav-bar__title,
+html.dark .van-nav-bar__text {
+  color: var(--color-text-primary);
+}
+
+.van-cell {
+  background: transparent;
+}
+
+html.dark .van-cell {
+  background: transparent;
+}
+
+html.dark .van-cell__title,
+html.dark .van-cell__value,
+html.dark .van-field__label,
+html.dark .van-field__control {
+  color: var(--color-text-primary);
+}
+
+html.dark .van-field__control::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* 滑动单元格 */
+.van-swipe-cell {
+  margin-bottom: var(--spacing-md);
 }
