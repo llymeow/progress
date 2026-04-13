@@ -8,7 +8,7 @@
         </svg>
       </button>
     </div>
-    
+
     <div v-if="tasks.length === 0" class="empty-state">
       <div class="empty-icon">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
@@ -20,26 +20,46 @@
       <p class="empty-text">暂无任务</p>
       <p class="empty-hint">点击右上角 + 创建新任务</p>
     </div>
-    
-    <draggable 
-      v-else
-      handle=".drag-handle" 
-      animation="200" 
-      v-model="tasks" 
-      item-key="id" 
-      @end="onDragEnd"
-      class="task-list"
-    >
-      <template #item="{ element }">
-        <TaskCard
-          :task="element"
-          @edit="openDialog"
-          @delete="deleteTaskById"
-          @increment="incrementTaskProgress"
-        />
-      </template>
-    </draggable>
-    
+
+    <template v-else>
+      <!-- 进行中 -->
+      <div v-if="inProgressTasks.length > 0" class="section">
+        <h2 class="section-label">进行中</h2>
+        <draggable
+          handle=".drag-handle"
+          animation="200"
+          v-model="inProgressTasks"
+          item-key="id"
+          @end="onDragEnd"
+          class="task-list"
+        >
+          <template #item="{ element }">
+            <TaskCard
+              :task="element"
+              @edit="openDialog"
+              @delete="deleteTaskById"
+              @increment="incrementTaskProgress"
+            />
+          </template>
+        </draggable>
+      </div>
+
+      <!-- 已完成 -->
+      <div v-if="completedTasks.length > 0" class="section">
+        <h2 class="section-label section-label--done">已完成</h2>
+        <div class="task-list task-list--done">
+          <TaskCard
+            v-for="task in completedTasks"
+            :key="task.id"
+            :task="task"
+            @edit="openDialog"
+            @delete="deleteTaskById"
+            @increment="incrementTaskProgress"
+          />
+        </div>
+      </div>
+    </template>
+
     <TaskDialog
       v-model:modelValue="showDialog"
       :task="editingTask"
@@ -50,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import draggable from 'vuedraggable'
 import { fetchTasks, createTask, updateTask, deleteTask } from '../db/taskStore'
@@ -75,6 +95,15 @@ interface Task {
 const tasks = ref<Task[]>([])
 const showDialog = ref(false)
 const editingTask = ref<Task | null>(null)
+
+const inProgressTasks = computed({
+  get: () => tasks.value.filter((t) => t.done < t.total),
+  set: (val: Task[]) => {
+    tasks.value = [...val, ...completedTasks.value]
+  },
+})
+
+const completedTasks = computed(() => tasks.value.filter((t) => t.done >= t.total))
 
 function openDialog(task?: Task) {
   editingTask.value = task ?? null
@@ -204,8 +233,30 @@ async function deleteTaskById(id: string) {
   color: var(--color-text-secondary);
 }
 
+.section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-sm);
+  padding-left: 4px;
+}
+
+.section-label--done {
+  color: var(--color-health-green);
+}
+
 .task-list {
   display: flex;
   flex-direction: column;
+}
+
+.task-list--done {
+  opacity: 0.6;
 }
 </style>

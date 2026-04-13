@@ -2,8 +2,8 @@
   <div class="about-container">
     <!-- 页面标题 -->
     <div class="about-header">
-      <h1 class="page-title">关于我们</h1>
-      <p class="page-subtitle">追踪进度，记录成长</p>
+      <h1 class="page-title">关于</h1>
+      <p class="page-subtitle">追踪进度</p>
     </div>
 
     <!-- 应用介绍 -->
