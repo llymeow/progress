@@ -1,10 +1,5 @@
 <template>
-  <van-popup
-    v-model:show="visible"
-    position="bottom"
-    :style="{ height: '90%' }"
-    round
-  >
+  <van-popup v-model:show="visible" position="bottom" :style="{ height: '90%' }" round>
     <div class="dialog-container">
       <div class="dialog-header">
         <button class="header-btn cancel-btn" @click="onCancel">取消</button>
@@ -55,7 +50,10 @@
           </div>
         </div>
 
-        <div class="form-row progress-form-row" :class="{ 'progress-form-row--want': !showDoneField }">
+        <div
+          class="form-row progress-form-row"
+          :class="{ 'progress-form-row--want': !showDoneField }"
+        >
           <div class="form-section" :class="{ half: showDoneField }">
             <label class="form-label">{{ totalLabel }}</label>
             <div class="stepper-container">
@@ -66,7 +64,7 @@
                 @click="decrementTotal"
               >
                 <svg width="16" height="2" viewBox="0 0 16 2" fill="none">
-                  <path d="M0 1h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M0 1h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </button>
               <input
@@ -86,7 +84,12 @@
                 @click="incrementTotal"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 0v16M0 8h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path
+                    d="M8 0v16M0 8h16"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -97,7 +100,7 @@
             <div class="stepper-container">
               <button type="button" class="stepper-btn" @click="decrementDone">
                 <svg width="16" height="2" viewBox="0 0 16 2" fill="none">
-                  <path d="M0 1h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M0 1h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </button>
               <input
@@ -112,7 +115,12 @@
               />
               <button type="button" class="stepper-btn" @click="incrementDone">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 0v16M0 8h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path
+                    d="M8 0v16M0 8h16"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -131,8 +139,20 @@
               @click="form.color = color.value"
               :title="color.name"
             >
-              <svg v-if="form.color === color.value" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M20 6L9 17l-5-5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg
+                v-if="form.color === color.value"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M20 6L9 17l-5-5"
+                  stroke="white"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
               </svg>
             </button>
           </div>
@@ -141,28 +161,76 @@
         <div class="form-row">
           <div class="form-section half">
             <label class="form-label">开始日期</label>
-            <button class="date-picker-btn" @click="openDatePicker('start')">
-              <span :class="{ placeholder: !form.startDate }">
-                {{ form.startDate ? formatDisplayDate(form.startDate) : '选择日期' }}
-              </span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-                <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
+            <div class="date-field">
+              <button type="button" class="date-picker-btn" @click="openDatePicker('start')">
+                <span :class="{ placeholder: !form.startDate }">
+                  {{ form.startDate ? formatDisplayDate(form.startDate) : '选择日期' }}
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="3"
+                    y="4"
+                    width="18"
+                    height="18"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M16 2v4M8 2v4M3 10h18"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
+              <button
+                v-if="form.startDate"
+                type="button"
+                class="date-clear-btn"
+                aria-label="清空开始日期"
+                @click="clearDate('start')"
+              >
+                ×
+              </button>
+            </div>
           </div>
 
           <div class="form-section half">
             <label class="form-label">完成日期</label>
-            <button class="date-picker-btn" @click="openDatePicker('end')">
-              <span :class="{ placeholder: !form.date }">
-                {{ form.date ? formatDisplayDate(form.date) : '选择日期（可选）' }}
-              </span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-                <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
+            <div class="date-field">
+              <button type="button" class="date-picker-btn" @click="openDatePicker('end')">
+                <span :class="{ placeholder: !form.date }">
+                  {{ form.date ? formatDisplayDate(form.date) : '选择日期' }}
+                </span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="3"
+                    y="4"
+                    width="18"
+                    height="18"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    d="M16 2v4M8 2v4M3 10h18"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
+              <button
+                v-if="form.date"
+                type="button"
+                class="date-clear-btn"
+                aria-label="清空完成日期"
+                @click="clearDate('end')"
+              >
+                ×
+              </button>
+            </div>
           </div>
         </div>
 
@@ -347,7 +415,15 @@ function decrementDone() {
 }
 
 function formatDisplayDate(date: string) {
-  return dayjs(date).format('YYYY年MM月DD日')
+  return dayjs(date).format('YYYY-MM-DD')
+}
+
+function clearDate(target: 'start' | 'end') {
+  if (target === 'start') {
+    form.value.startDate = ''
+  } else {
+    form.value.date = ''
+  }
 }
 
 function openDatePicker(target: 'start' | 'end') {
@@ -600,7 +676,9 @@ function onCancel() {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .color-option:active {
@@ -608,14 +686,23 @@ function onCancel() {
 }
 
 .color-option.active {
-  box-shadow: 0 0 0 3px var(--color-background-card), 0 0 0 5px currentColor;
+  box-shadow:
+    0 0 0 3px var(--color-background-card),
+    0 0 0 5px currentColor;
+}
+
+.date-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .date-picker-btn {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: var(--spacing-md);
   font-size: 15px;
   color: var(--color-text-primary);
@@ -624,6 +711,27 @@ function onCancel() {
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: opacity 0.2s ease;
+}
+
+.date-clear-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 44px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--color-text-tertiary);
+  background: var(--color-background-card);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.date-clear-btn:active {
+  color: var(--color-health-red);
+  opacity: 0.8;
 }
 
 .date-picker-btn:active {

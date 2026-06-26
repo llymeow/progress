@@ -115,7 +115,7 @@ const canIncrement = computed(
 
 function formatDate(date?: string | null) {
   if (!date) return ''
-  return dayjs(date).format('MM/DD (ddd)')
+  return dayjs(date).format('YYYY-MM-DD')
 }
 
 const dateRangeText = computed(() => {
