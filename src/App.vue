@@ -31,6 +31,12 @@ function onToggle() {
           </svg>
           <span>首页</span>
         </RouterLink>
+        <RouterLink to="/stats" class="nav-link" active-class="active">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>统计</span>
+        </RouterLink>
         <RouterLink to="/about" class="nav-link" active-class="active">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
@@ -105,11 +111,11 @@ html.dark .app-header {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-sm);
   border-radius: var(--radius-sm);
   color: var(--color-text-secondary);
   text-decoration: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
 }

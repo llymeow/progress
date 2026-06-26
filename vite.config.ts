@@ -15,8 +15,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'robots.txt'],
       manifest: {
-        name: 'Progress',
-        short_name: 'Progress',
+        name: '书影音',
+        short_name: '书影音',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',

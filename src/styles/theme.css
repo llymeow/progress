@@ -25,14 +25,14 @@ html.dark #app {
 }
 
 /* ====== 卡片样式 ====== */
-.task-card {
+.media-card {
   background: var(--color-background-card);
   border: none;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
 }
 
-html.dark .task-card {
+html.dark .media-card {
   background: var(--color-background-card);
   border: none;
 }

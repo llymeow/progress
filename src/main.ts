@@ -4,7 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import 'vant/lib/index.css'
-import { Popup, NavBar, Form, Field, Stepper, Calendar, Button, SwipeCell, Dialog } from 'vant'
+import { Popup, NavBar, Form, Field, Stepper, Calendar, Button, SwipeCell, Dialog, ActionSheet, Toast } from 'vant'
 import './styles/theme.css'
 import { initTheme } from './utils/theme'
 initTheme() // ⭐ 在 app 挂载前执行
@@ -19,6 +19,8 @@ app.use(Calendar)
 app.use(Button)
 app.use(SwipeCell)
 app.use(Dialog)
+app.use(ActionSheet)
+app.use(Toast)
 app.use(createPinia())
 app.use(router)
 

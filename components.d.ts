@@ -8,13 +8,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    ElButton: typeof import('element-plus/es')['ElButton']
-    ElCard: typeof import('element-plus/es')['ElCard']
-    ElIcon: typeof import('element-plus/es')['ElIcon']
-    ElProgress: typeof import('element-plus/es')['ElProgress']
+    MediaCard: typeof import('./src/components/MediaCard.vue')['default']
+    MediaDialog: typeof import('./src/components/MediaDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TaskCard: typeof import('./src/components/TaskCard.vue')['default']
-    TaskDialog: typeof import('./src/components/TaskDialog.vue')['default']
   }
 }

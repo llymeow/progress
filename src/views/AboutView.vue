@@ -3,7 +3,7 @@
     <!-- 页面标题 -->
     <div class="about-header">
       <h1 class="page-title">关于</h1>
-      <p class="page-subtitle">追踪进度</p>
+      <p class="page-subtitle">书影音记录</p>
     </div>
 
     <!-- 应用介绍 -->
@@ -11,8 +11,30 @@
       <div class="section-card">
         <h2 class="section-title">应用简介</h2>
         <p class="section-text">
-          这是一个简洁而强大的任务管理应用，帮助你追踪日常任务的进度。支持自定义颜色、日期筛选和实时进度显示，让你更好地管理时间和任务。
+          这是一个简洁的书影音管理应用，帮你记录想看的清单、追踪阅读/观影进度，并归档已看完的内容。支持漫画（话数）、动画/剧集（集数）和电影四种类型。
         </p>
+      </div>
+    </div>
+
+    <!-- 数据导出 -->
+    <div class="about-section">
+      <h2 class="section-heading">数据导出</h2>
+      <div class="section-card">
+        <p class="section-text">
+          将本地记录导出为文件，便于备份或在表格软件中查看。手机上会弹出分享面板，可选择「存储到文件」保存。
+        </p>
+        <div class="export-buttons">
+          <button class="export-action-btn" type="button" @click="handleExport('json')">
+            导出 JSON
+          </button>
+          <button
+            class="export-action-btn export-action-btn--secondary"
+            type="button"
+            @click="handleExport('csv')"
+          >
+            导出 CSV
+          </button>
+        </div>
       </div>
     </div>
 
@@ -20,7 +42,16 @@
     <div class="about-section">
       <h2 class="section-heading">版本历史</h2>
       <div class="version-list">
-         <div class="version-item">
+        <div class="version-item">
+          <div class="version-header">
+            <span class="version-badge">v3.0.0</span>
+            <span class="version-date">26-06-26</span>
+          </div>
+          <p class="version-description">
+            升级为书影音管理；新增想看/在看/看过状态；支持书/影/剧三种类型
+          </p>
+        </div>
+        <div class="version-item">
           <div class="version-header">
             <span class="version-badge">v2.0.0</span>
             <span class="version-date">26-04-13</span>
@@ -58,19 +89,19 @@
       <h2 class="section-heading">主要功能</h2>
       <div class="features-grid">
         <div class="feature-card">
+          <div class="feature-icon">📚</div>
+          <h3 class="feature-title">书影音分类</h3>
+          <p class="feature-text">漫画按话数、动画/剧集按集数、电影一键标记看过</p>
+        </div>
+        <div class="feature-card">
           <div class="feature-icon">📊</div>
           <h3 class="feature-title">进度追踪</h3>
-          <p class="feature-text">实时查看任务进度，直观的环形进度条展示</p>
+          <p class="feature-text">在看列表支持点击进度环快速更新阅读/观影进度</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🎨</div>
           <h3 class="feature-title">自定义颜色</h3>
-          <p class="feature-text">为每个任务选择喜欢的颜色，个性化管理</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📅</div>
-          <h3 class="feature-title">日期筛选</h3>
-          <p class="feature-text">按日期范围筛选任务，随时查看历史记录</p>
+          <p class="feature-text">为每条记录选择喜欢的颜色，个性化管理</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🌙</div>
@@ -82,12 +113,33 @@
 
     <!-- 页脚 -->
     <div class="about-footer">
-      <p class="footer-text">© 2025 Progress. 追踪你的每一步进度。</p>
+      <p class="footer-text">© 2025 书影音. 记录你的阅读与观影足迹。</p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { showToast } from 'vant'
+import { fetchMediaItems } from '@/db/mediaStore'
+import { exportMedia, getExportSuccessMessage, type ExportFormat } from '@/utils/exportMedia'
+import type { MediaItem } from '@/types/media'
+
+const items = ref<MediaItem[]>([])
+
+onMounted(async () => {
+  items.value = await fetchMediaItems()
+})
+
+async function handleExport(format: ExportFormat) {
+  if (!items.value.length) {
+    showToast('暂无数据，请先添加记录')
+    return
+  }
+  const result = await exportMedia(items.value, format)
+  if (result === 'cancelled') return
+  showToast(getExportSuccessMessage(result))
+}
 </script>
 
 <style scoped>
@@ -150,6 +202,34 @@
   color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.export-action-btn {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.export-action-btn:active {
+  opacity: 0.85;
+}
+
+.export-action-btn--secondary {
+  color: var(--color-primary);
+  background: var(--color-primary-soft, rgba(0, 122, 255, 0.12));
 }
 
 /* 版本列表 */
