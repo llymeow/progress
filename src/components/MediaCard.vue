@@ -16,6 +16,7 @@
               <span class="media-title">{{ media.name }}</span>
             </div>
             <div class="media-meta">
+              <span class="media-progress" v-if="progressText">{{ progressText }}</span>
               <span class="media-date" v-if="dateRangeText">{{ dateRangeText }}</span>
             </div>
           </div>
@@ -49,9 +50,12 @@
                 stroke-linecap="round"
               />
             </svg>
-            <div class="progress-text">
+            <div class="progress-text" :class="{ 'progress-text--want': media.status === 'want' }">
               <template v-if="media.type === 'movie'">
                 <span class="progress-done">{{ media.done >= media.total ? '✓' : '—' }}</span>
+              </template>
+              <template v-else-if="media.status === 'want'">
+                <span class="progress-done progress-done--solo">{{ media.total }}</span>
               </template>
               <template v-else>
                 <span class="progress-done">{{ media.done }}</span>
@@ -85,7 +89,7 @@ import { computed } from 'vue'
 import dayjs from 'dayjs'
 import { showConfirmDialog } from 'vant'
 import type { MediaItem } from '@/types/media'
-import { MEDIA_TYPE_LABELS } from '@/types/media'
+import { MEDIA_TYPE_LABELS, getProgressUnit } from '@/types/media'
 
 const props = defineProps<{
   media: MediaItem
@@ -119,6 +123,17 @@ const dateRangeText = computed(() => {
   const end = formatDate(props.media.date)
   if (start && end) return `${start} ~ ${end}`
   return start || end
+})
+
+const progressText = computed(() => {
+  if (props.media.type === 'movie') {
+    if (props.media.status === 'finished') return '已观看'
+    return ''
+  }
+  if (props.media.status === 'want') return ''
+  const unit = getProgressUnit(props.media.type)
+  if (!unit || !props.media.total) return ''
+  return `${props.media.done} / ${props.media.total} ${unit}`
 })
 
 function onIncrement() {
@@ -239,6 +254,13 @@ function confirmDelete() {
   align-items: center;
   gap: var(--spacing-sm);
   margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.media-progress {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
 }
 
 .media-date {
@@ -290,6 +312,18 @@ function confirmDelete() {
   transform: translate(-50%, -50%);
   text-align: center;
   line-height: 1;
+}
+
+.progress-text--want {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-done--solo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-primary);
 }
 
 .progress-done {

@@ -55,17 +55,36 @@
           </div>
         </div>
 
-        <div v-if="showProgress" class="form-row">
-          <div class="form-section half">
+        <div class="form-row progress-form-row" :class="{ 'progress-form-row--want': !showDoneField }">
+          <div class="form-section" :class="{ half: showDoneField }">
             <label class="form-label">{{ totalLabel }}</label>
             <div class="stepper-container">
-              <button class="stepper-btn" @click="decrementTotal" :disabled="form.type === 'movie'">
+              <button
+                type="button"
+                class="stepper-btn"
+                :disabled="form.type === 'movie'"
+                @click="decrementTotal"
+              >
                 <svg width="16" height="2" viewBox="0 0 16 2" fill="none">
                   <path d="M0 1h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
               </button>
-              <span class="stepper-value">{{ form.total }}</span>
-              <button class="stepper-btn" @click="incrementTotal" :disabled="form.type === 'movie'">
+              <input
+                v-model.number="form.total"
+                class="stepper-input"
+                type="number"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                min="1"
+                :readonly="form.type === 'movie'"
+                @blur="normalizeTotal"
+              />
+              <button
+                type="button"
+                class="stepper-btn"
+                :disabled="form.type === 'movie'"
+                @click="incrementTotal"
+              >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M8 0v16M0 8h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
@@ -73,16 +92,25 @@
             </div>
           </div>
 
-          <div class="form-section half">
+          <div v-if="showDoneField" class="form-section half">
             <label class="form-label">{{ doneLabel }}</label>
             <div class="stepper-container">
-              <button class="stepper-btn" @click="decrementDone">
+              <button type="button" class="stepper-btn" @click="decrementDone">
                 <svg width="16" height="2" viewBox="0 0 16 2" fill="none">
                   <path d="M0 1h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
               </button>
-              <span class="stepper-value">{{ form.done }}</span>
-              <button class="stepper-btn" @click="incrementDone">
+              <input
+                v-model.number="form.done"
+                class="stepper-input"
+                type="number"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                min="0"
+                :max="form.total"
+                @blur="normalizeDone"
+              />
+              <button type="button" class="stepper-btn" @click="incrementDone">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M8 0v16M0 8h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
@@ -183,7 +211,7 @@ const datePickerTitle = computed(() =>
 
 const totalLabel = computed(() => getTotalLabel(form.value.type))
 const doneLabel = computed(() => getDoneLabel(form.value.type))
-const showProgress = computed(() => form.value.status !== 'want')
+const showDoneField = computed(() => form.value.status !== 'want')
 
 watch(
   () => props.modelValue,
@@ -273,6 +301,25 @@ function onStatusChange(status: MediaStatus) {
   }
 }
 
+function normalizeTotal() {
+  let value = Number(form.value.total)
+  if (!Number.isFinite(value) || value < 1) {
+    value = form.value.type === 'movie' ? 1 : defaultTotal(form.value.type)
+  }
+  if (form.value.type === 'movie') value = 1
+  form.value.total = Math.floor(value)
+  if (form.value.done > form.value.total) {
+    form.value.done = form.value.total
+  }
+}
+
+function normalizeDone() {
+  let value = Number(form.value.done)
+  if (!Number.isFinite(value) || value < 0) value = 0
+  if (value > form.value.total) value = form.value.total
+  form.value.done = Math.floor(value)
+}
+
 function incrementTotal() {
   if (form.value.type !== 'movie') form.value.total++
 }
@@ -319,6 +366,8 @@ function onDateConfirm(date: Date) {
 }
 
 function onSubmit() {
+  normalizeTotal()
+  normalizeDone()
   if (!form.value.name || form.value.total <= 0) {
     return window.alert('请填写名称')
   }
@@ -397,6 +446,20 @@ function onCancel() {
   gap: var(--spacing-md);
 }
 
+.progress-form-row--want {
+  justify-content: center;
+}
+
+.progress-form-row--want .form-section {
+  flex: none;
+  width: 100%;
+  max-width: 280px;
+}
+
+.progress-form-row--want .form-label {
+  text-align: center;
+}
+
 .form-label {
   display: block;
   font-size: 13px;
@@ -427,6 +490,71 @@ function onCancel() {
   color: var(--color-text-tertiary);
 }
 
+.stepper-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  background: var(--color-background-card);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm);
+}
+
+.stepper-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: var(--color-primary-soft);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.stepper-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.stepper-btn:active:not(:disabled) {
+  opacity: 0.7;
+}
+
+.stepper-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 8px 4px;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.stepper-input:focus {
+  box-shadow: 0 0 0 2px var(--color-primary-soft);
+  border-radius: var(--radius-sm);
+}
+
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper-input:read-only {
+  color: var(--color-text-secondary);
+}
+
 .option-group {
   display: flex;
   flex-direction: column;
@@ -452,46 +580,6 @@ function onCancel() {
 .option-btn.active {
   background: var(--color-primary);
   color: white;
-}
-
-.stepper-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--color-background-card);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm);
-}
-
-.stepper-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--color-primary-soft);
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--color-primary);
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.stepper-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.stepper-btn:active:not(:disabled) {
-  opacity: 0.7;
-}
-
-.stepper-value {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  min-width: 40px;
-  text-align: center;
 }
 
 .color-picker {
