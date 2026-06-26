@@ -80,13 +80,37 @@
         </button>
       </div>
     </div>
+
+    <div class="data-section">
+      <h2 class="data-section-title">数据备份</h2>
+      <p class="data-section-hint">导入会覆盖现有记录，建议先导出 JSON 备份</p>
+      <input
+        ref="importInputRef"
+        type="file"
+        accept=".json,application/json"
+        class="import-input"
+        @change="onImportFile"
+      />
+      <div class="data-actions">
+        <button type="button" class="data-btn" @click="triggerImport">导入 JSON</button>
+        <button type="button" class="data-btn data-btn--secondary" @click="handleExport('json')">
+          导出 JSON
+        </button>
+        <button type="button" class="data-btn data-btn--secondary" @click="handleExport('csv')">
+          导出 CSV
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { fetchMediaItems } from '@/db/mediaStore'
+import { showToast, showConfirmDialog } from 'vant'
+import { fetchMediaItems, replaceAllMediaItems } from '@/db/mediaStore'
 import type { MediaItem } from '@/types/media'
+import { exportMedia, getExportSuccessMessage, type ExportFormat } from '@/utils/exportMedia'
+import { readImportFile, ImportMediaError } from '@/utils/importMedia'
 import {
   groupFinishedByPeriod,
   getStatsSummary,
@@ -98,9 +122,14 @@ const items = ref<MediaItem[]>([])
 const loading = ref(true)
 const periodMode = ref<StatsPeriod>('month')
 const expandedKeys = ref(new Set<string>())
+const importInputRef = ref<HTMLInputElement | null>(null)
+
+async function loadItems() {
+  items.value = await fetchMediaItems()
+}
 
 onMounted(async () => {
-  items.value = await fetchMediaItems()
+  await loadItems()
   loading.value = false
 })
 
@@ -115,6 +144,50 @@ function toggleExpand(key: string) {
   if (next.has(key)) next.delete(key)
   else next.add(key)
   expandedKeys.value = next
+}
+
+function triggerImport() {
+  importInputRef.value?.click()
+}
+
+async function onImportFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+
+  try {
+    const imported = await readImportFile(file)
+    const existing = items.value.length
+    const message =
+      existing > 0
+        ? `将导入 ${imported.length} 条记录，并覆盖现有 ${existing} 条记录。是否继续？`
+        : `将导入 ${imported.length} 条记录。是否继续？`
+
+    try {
+      await showConfirmDialog({ title: '导入数据', message })
+    } catch {
+      return
+    }
+
+    await replaceAllMediaItems(imported)
+    await loadItems()
+    showToast(`已导入 ${imported.length} 条记录`)
+  } catch (error) {
+    const message =
+      error instanceof ImportMediaError ? error.message : '导入失败，请检查文件格式'
+    showToast(message)
+  }
+}
+
+async function handleExport(format: ExportFormat) {
+  if (!items.value.length) {
+    showToast('暂无数据，请先添加记录')
+    return
+  }
+  const result = await exportMedia(items.value, format)
+  if (result === 'cancelled') return
+  showToast(getExportSuccessMessage(result))
 }
 </script>
 
@@ -350,5 +423,57 @@ function toggleExpand(key: string) {
 
 .toggle-names-btn:active {
   opacity: 0.7;
+}
+
+.data-section {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-separator);
+}
+
+.data-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 6px;
+}
+
+.data-section-hint {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-md);
+  line-height: 1.5;
+}
+
+.import-input {
+  display: none;
+}
+
+.data-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.data-btn {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.data-btn:active {
+  opacity: 0.85;
+}
+
+.data-btn--secondary {
+  color: var(--color-primary);
+  background: rgba(0, 122, 255, 0.12);
 }
 </style>

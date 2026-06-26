@@ -1,11 +1,28 @@
 <template>
   <van-swipe-cell>
-    <div class="media-card">
+    <div
+      class="media-card"
+      :class="{ 'media-card--long-pressing': isLongPressing }"
+      @touchstart.passive="onPressStart"
+      @touchend="onPressEnd"
+      @touchmove="onPressMove"
+      @touchcancel="onPressEnd"
+      @mousedown="onPressStart"
+      @mouseup="onPressEnd"
+      @mouseleave="onPressEnd"
+      @mousemove="onPressMove"
+      @contextmenu.prevent="onContextMenu"
+    >
       <div class="card-content">
         <div class="card-left">
           <div class="drag-handle">
             <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
-              <path d="M0 1h14M0 5h14M0 9h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path
+                d="M0 1h14M0 5h14M0 9h14"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
             </svg>
           </div>
           <div class="media-info">
@@ -66,8 +83,20 @@
 
           <button class="action-btn" @click="$emit('edit', media)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path
+                d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </button>
         </div>
@@ -77,19 +106,42 @@
     <template #right>
       <button class="delete-btn" @click="confirmDelete">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </button>
     </template>
   </van-swipe-cell>
+
+  <van-action-sheet
+    v-model:show="showStatusSheet"
+    title=""
+    :actions="statusActions"
+    cancel-text="取消"
+    close-on-click-action
+    @select="onStatusSelect"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onBeforeUnmount } from 'vue'
 import dayjs from 'dayjs'
 import { showConfirmDialog } from 'vant'
-import type { MediaItem } from '@/types/media'
+import type { MediaItem, MediaStatus } from '@/types/media'
 import { MEDIA_TYPE_LABELS, getProgressUnit } from '@/types/media'
+import { getStatusActions } from '@/utils/mediaStatus'
+
+interface StatusAction {
+  name: string
+  status: MediaStatus
+}
+
+const LONG_PRESS_MS = 500
 
 const props = defineProps<{
   media: MediaItem
@@ -99,15 +151,25 @@ const emit = defineEmits<{
   increment: [media: MediaItem]
   edit: [media: MediaItem]
   delete: [id: string]
+  statusChange: [media: MediaItem, status: MediaStatus]
 }>()
 
+const showStatusSheet = ref(false)
+const isLongPressing = ref(false)
+let pressTimer: ReturnType<typeof setTimeout> | null = null
+let pressStartX = 0
+let pressStartY = 0
+
+const statusActions = computed<StatusAction[]>(() =>
+  getStatusActions(props.media.status).map((action) => ({
+    name: action.name,
+    status: action.status,
+  })),
+)
+
 const circumference = 2 * Math.PI * 24
-const percentage = computed(() =>
-  props.media.total ? props.media.done / props.media.total : 0,
-)
-const strokeDashoffset = computed(() =>
-  circumference - percentage.value * circumference,
-)
+const percentage = computed(() => (props.media.total ? props.media.done / props.media.total : 0))
+const strokeDashoffset = computed(() => circumference - percentage.value * circumference)
 
 const canIncrement = computed(
   () => props.media.status === 'watching' && props.media.done < props.media.total,
@@ -142,6 +204,67 @@ function onIncrement() {
   }
 }
 
+function isInteractiveTarget(target: EventTarget | null) {
+  const el = target as HTMLElement | null
+  if (!el) return true
+  return !!el.closest('.drag-handle, .progress-ring-container, .action-btn, .delete-btn')
+}
+
+function clearPressTimer() {
+  if (pressTimer) {
+    clearTimeout(pressTimer)
+    pressTimer = null
+  }
+  isLongPressing.value = false
+}
+
+function onPressStart(event: TouchEvent | MouseEvent) {
+  if (isInteractiveTarget(event.target)) return
+  if ('button' in event && event.button !== 0) return
+
+  const point = 'touches' in event ? event.touches[0] : event
+  pressStartX = point.clientX
+  pressStartY = point.clientY
+
+  clearPressTimer()
+  isLongPressing.value = true
+  pressTimer = setTimeout(() => {
+    pressTimer = null
+    isLongPressing.value = false
+    navigator.vibrate?.(10)
+    showStatusSheet.value = true
+  }, LONG_PRESS_MS)
+}
+
+function onPressMove(event: TouchEvent | MouseEvent) {
+  if (!pressTimer) return
+  const point = 'touches' in event ? event.touches[0] : event
+  const dx = point.clientX - pressStartX
+  const dy = point.clientY - pressStartY
+  if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+    clearPressTimer()
+  }
+}
+
+function onPressEnd() {
+  clearPressTimer()
+}
+
+function onContextMenu(event: MouseEvent) {
+  if (isInteractiveTarget(event.target)) return
+  showStatusSheet.value = true
+}
+
+function onStatusSelect(action: StatusAction) {
+  if (action.status) {
+    emit('statusChange', props.media, action.status)
+  }
+}
+
+onBeforeUnmount(() => {
+  clearPressTimer()
+})
+
 function confirmDelete() {
   showConfirmDialog({
     title: '确认删除',
@@ -161,11 +284,18 @@ function confirmDelete() {
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
   box-shadow: var(--shadow-card);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .media-card:active {
   transform: scale(0.98);
+}
+
+.media-card--long-pressing {
+  transform: scale(0.98);
+  opacity: 0.92;
 }
 
 .card-content {
@@ -348,7 +478,9 @@ function confirmDelete() {
   border-radius: var(--radius-sm);
   color: var(--color-primary);
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .action-btn:active {

@@ -262,6 +262,7 @@ import {
   getDoneLabel,
   defaultTotal,
 } from '@/types/media'
+import { applyMediaStatusChange } from '@/utils/mediaStatus'
 
 const props = defineProps<{
   modelValue: boolean
@@ -353,24 +354,17 @@ function onTypeChange(type: MediaType) {
 }
 
 function onStatusChange(status: MediaStatus) {
-  form.value.status = status
-  if (status === 'want') {
-    form.value.done = 0
-    form.value.date = ''
-  } else if (status === 'watching') {
-    if (!form.value.startDate) {
-      form.value.startDate = dayjs().format('YYYY-MM-DD')
-    }
-    if (form.value.type === 'movie') {
-      form.value.total = 1
-      form.value.done = 0
-    }
-  } else if (status === 'finished') {
-    form.value.done = form.value.total
-    if (!form.value.date) {
-      form.value.date = dayjs().format('YYYY-MM-DD')
-    }
+  const current: MediaItem = {
+    ...form.value,
+    startDate: form.value.startDate || null,
+    date: form.value.date || null,
   }
+  const result = applyMediaStatusChange(current, status)
+  form.value.status = result.status
+  form.value.done = result.done
+  form.value.total = result.total
+  form.value.startDate = result.startDate ?? ''
+  form.value.date = result.date ?? ''
 }
 
 function normalizeTotal() {

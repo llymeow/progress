@@ -44,6 +44,16 @@ export async function deleteMediaItem(id: string): Promise<void> {
   await db.delete(STORE_NAME, id)
 }
 
+export async function replaceAllMediaItems(items: MediaItem[]): Promise<void> {
+  const db = await dbPromise
+  const tx = db.transaction(STORE_NAME, 'readwrite')
+  await tx.store.clear()
+  for (const item of items) {
+    await tx.store.put(item)
+  }
+  await tx.done
+}
+
 if (navigator.storage && navigator.storage.persist) {
   navigator.storage.persist().then((granted) => {
     if (granted) {

@@ -16,25 +16,14 @@
       </div>
     </div>
 
-    <!-- 数据导出 -->
+    <!-- 数据导入导出 -->
     <div class="about-section">
-      <h2 class="section-heading">数据导出</h2>
+      <h2 class="section-heading">数据导入导出</h2>
       <div class="section-card">
         <p class="section-text">
-          将本地记录导出为文件，便于备份或在表格软件中查看。手机上会弹出分享面板，可选择「存储到文件」保存。
+          在「统计」页面底部可导入、导出记录。JSON 适合完整备份与恢复，CSV
+          便于在表格软件中查看。手机上导出时会弹出分享面板，可选择「存储到文件」保存。
         </p>
-        <div class="export-buttons">
-          <button class="export-action-btn" type="button" @click="handleExport('json')">
-            导出 JSON
-          </button>
-          <button
-            class="export-action-btn export-action-btn--secondary"
-            type="button"
-            @click="handleExport('csv')"
-          >
-            导出 CSV
-          </button>
-        </div>
       </div>
     </div>
 
@@ -48,7 +37,8 @@
             <span class="version-date">26-06-26</span>
           </div>
           <p class="version-description">
-            升级为书影音管理；新增想看/在看/看过状态；支持书/影/剧三种类型
+            全面升级为书影音管理：支持漫画、动画、电影、剧集四种类型，以及想看 / 在看 /
+            看过三态流转。新增统计页（按月/年汇总看过记录）、JSON/CSV 导入导出与数据备份。
           </p>
         </div>
         <div class="version-item">
@@ -118,30 +108,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { showToast } from 'vant'
-import { fetchMediaItems } from '@/db/mediaStore'
-import { exportMedia, getExportSuccessMessage, type ExportFormat } from '@/utils/exportMedia'
-import type { MediaItem } from '@/types/media'
-
-const items = ref<MediaItem[]>([])
-
-onMounted(async () => {
-  items.value = await fetchMediaItems()
-})
-
-async function handleExport(format: ExportFormat) {
-  if (!items.value.length) {
-    showToast('暂无数据，请先添加记录')
-    return
-  }
-  const result = await exportMedia(items.value, format)
-  if (result === 'cancelled') return
-  showToast(getExportSuccessMessage(result))
-}
-</script>
-
 <style scoped>
 .about-container {
   padding: 20px;
@@ -202,34 +168,6 @@ async function handleExport(format: ExportFormat) {
   color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
-}
-
-.export-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.export-action-btn {
-  flex: 1;
-  padding: 12px 16px;
-  font-size: 15px;
-  font-weight: 600;
-  color: white;
-  background: var(--color-primary);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.export-action-btn:active {
-  opacity: 0.85;
-}
-
-.export-action-btn--secondary {
-  color: var(--color-primary);
-  background: var(--color-primary-soft, rgba(0, 122, 255, 0.12));
 }
 
 /* 版本列表 */
