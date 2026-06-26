@@ -235,7 +235,9 @@
         </div>
 
         <van-calendar
+          :key="calendarKey"
           v-model:show="showDatePicker"
+          :default-date="calendarDefaultDate"
           @confirm="onDateConfirm"
           :min-date="minDate"
           :max-date="maxDate"
@@ -270,6 +272,8 @@ const emit = defineEmits(['update:modelValue', 'submit', 'cancel'])
 const visible = ref(false)
 const showDatePicker = ref(false)
 const datePickerTarget = ref<'start' | 'end'>('start')
+const calendarKey = ref(0)
+const calendarDefaultDate = ref(new Date())
 const minDate = new Date(1970, 0, 1)
 const maxDate = new Date(2099, 11, 31)
 
@@ -415,7 +419,7 @@ function decrementDone() {
 }
 
 function formatDisplayDate(date: string) {
-  return dayjs(date).format('YYYY-MM-DD')
+  return dayjs(date).format('YY/MM/DD')
 }
 
 function clearDate(target: 'start' | 'end') {
@@ -428,6 +432,8 @@ function clearDate(target: 'start' | 'end') {
 
 function openDatePicker(target: 'start' | 'end') {
   datePickerTarget.value = target
+  calendarDefaultDate.value = new Date()
+  calendarKey.value++
   showDatePicker.value = true
 }
 
