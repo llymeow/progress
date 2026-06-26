@@ -32,7 +32,7 @@
         </svg>
       </div>
       <p class="empty-text">暂无记录</p>
-      <p class="empty-hint">点击右上角 + 添加漫画、动画、电影或剧集</p>
+      <p class="empty-hint">点击右上角 + 添加动画、剧集、电影、漫画或图书</p>
     </div>
 
     <template v-else>

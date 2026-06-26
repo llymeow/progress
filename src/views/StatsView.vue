@@ -395,6 +395,11 @@ async function handleExport(format: ExportFormat) {
   color: #5856d6;
 }
 
+.type-tag--book {
+  background: rgba(52, 199, 89, 0.15);
+  color: #34c759;
+}
+
 .name-list {
   list-style: none;
   margin: 0 0 var(--spacing-sm);

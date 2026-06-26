@@ -1,4 +1,4 @@
-export type MediaType = 'comic' | 'movie' | 'tv' | 'anime'
+export type MediaType = 'anime' | 'tv' | 'movie' | 'comic' | 'book'
 export type MediaStatus = 'want' | 'watching' | 'finished'
 
 export interface MediaItem {
@@ -15,10 +15,11 @@ export interface MediaItem {
 }
 
 export const MEDIA_TYPE_LABELS: Record<MediaType, string> = {
-  comic: '漫',
-  movie: '影',
-  tv: '剧',
   anime: '动',
+  tv: '剧',
+  movie: '影',
+  comic: '漫',
+  book: '书',
 }
 
 export const MEDIA_STATUS_LABELS: Record<MediaStatus, string> = {
@@ -28,10 +29,11 @@ export const MEDIA_STATUS_LABELS: Record<MediaStatus, string> = {
 }
 
 export const MEDIA_TYPES: { value: MediaType; label: string }[] = [
-  { value: 'comic', label: '漫画' },
   { value: 'anime', label: '动画' },
-  { value: 'movie', label: '电影' },
   { value: 'tv', label: '剧集' },
+  { value: 'movie', label: '电影' },
+  { value: 'comic', label: '漫画' },
+  { value: 'book', label: '图书' },
 ]
 
 export const MEDIA_STATUSES: { value: MediaStatus; label: string }[] = [
@@ -40,21 +42,33 @@ export const MEDIA_STATUSES: { value: MediaStatus; label: string }[] = [
   { value: 'finished', label: '看过' },
 ]
 
+export function isWholeUnitType(type: MediaType): boolean {
+  return type === 'movie' || type === 'book'
+}
+
 export function getTotalLabel(type: MediaType): string {
   if (type === 'comic') return '总话数'
   if (type === 'tv' || type === 'anime') return '总集数'
+  if (type === 'book') return '整本'
   return '整部'
 }
 
 export function getDoneLabel(type: MediaType): string {
   if (type === 'comic') return '当前话数'
   if (type === 'tv' || type === 'anime') return '当前集数'
+  if (type === 'book') return '已读完'
   return '已观看'
 }
 
 export function getProgressUnit(type: MediaType): string {
   if (type === 'comic') return '话'
   if (type === 'tv' || type === 'anime') return '集'
+  return ''
+}
+
+export function getFinishedText(type: MediaType): string {
+  if (type === 'book') return '已读完'
+  if (type === 'movie') return '已观看'
   return ''
 }
 
@@ -65,12 +79,11 @@ export function defaultTotal(type: MediaType): number {
   return 1
 }
 
-const VALID_TYPES: MediaType[] = ['comic', 'movie', 'tv', 'anime']
+const VALID_TYPES: MediaType[] = ['anime', 'tv', 'movie', 'comic', 'book']
 
 function normalizeType(raw: unknown): MediaType {
-  if (raw === 'book') return 'comic'
   if (VALID_TYPES.includes(raw as MediaType)) return raw as MediaType
-  return 'comic'
+  return 'anime'
 }
 
 export function migrateLegacyItem(item: Record<string, unknown>): MediaItem {

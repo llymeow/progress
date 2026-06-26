@@ -27,7 +27,7 @@ export interface StatsSummary {
 }
 
 function emptyByType(): Record<MediaType, number> {
-  return { comic: 0, anime: 0, movie: 0, tv: 0 }
+  return { anime: 0, tv: 0, movie: 0, comic: 0, book: 0 }
 }
 
 export function getCompletionDate(item: MediaItem): string | null {

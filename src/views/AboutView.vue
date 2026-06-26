@@ -11,7 +11,7 @@
       <div class="section-card">
         <h2 class="section-title">应用简介</h2>
         <p class="section-text">
-          这是一个简洁的书影音管理应用，帮你记录想看的清单、追踪阅读/观影进度，并归档已看完的内容。支持漫画（话数）、动画/剧集（集数）和电影四种类型。
+          这是一个简洁的书影音管理应用，帮你记录想看的清单、追踪阅读/观影进度，并归档已看完的内容。支持动画、剧集、电影、漫画、图书五种类型。
         </p>
       </div>
     </div>
@@ -37,8 +37,8 @@
             <span class="version-date">26-06-26</span>
           </div>
           <p class="version-description">
-            全面升级为书影音管理：支持漫画、动画、电影、剧集四种类型，以及想看 / 在看 /
-            看过三态流转。新增统计页（按月/年汇总看过记录）、JSON/CSV 导入导出与数据备份。
+            全面升级为书影音管理：支持动画、剧集、电影、漫画、图书五种类型，以及想看 / 在看 /
+            看过三态流转。新增统计页（按月/年汇总）、导入导出与数据备份。
           </p>
         </div>
         <div class="version-item">
@@ -81,7 +81,7 @@
         <div class="feature-card">
           <div class="feature-icon">📚</div>
           <h3 class="feature-title">书影音分类</h3>
-          <p class="feature-text">漫画按话数、动画/剧集按集数、电影一键标记看过</p>
+          <p class="feature-text">动画/剧集按集数、漫画按话数、电影/图书按整部/整本标记看过</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">📊</div>

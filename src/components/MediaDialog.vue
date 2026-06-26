@@ -14,7 +14,7 @@
             v-model="form.name"
             class="form-input"
             type="text"
-            placeholder="输入漫画名、片名或剧名"
+            placeholder="输入作品名称"
           />
         </div>
 
@@ -60,7 +60,7 @@
               <button
                 type="button"
                 class="stepper-btn"
-                :disabled="form.type === 'movie'"
+                :disabled="isWholeUnitType(form.type)"
                 @click="decrementTotal"
               >
                 <svg width="16" height="2" viewBox="0 0 16 2" fill="none">
@@ -74,13 +74,13 @@
                 inputmode="numeric"
                 pattern="[0-9]*"
                 min="1"
-                :readonly="form.type === 'movie'"
+                :readonly="isWholeUnitType(form.type)"
                 @blur="normalizeTotal"
               />
               <button
                 type="button"
                 class="stepper-btn"
-                :disabled="form.type === 'movie'"
+                :disabled="isWholeUnitType(form.type)"
                 @click="incrementTotal"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -261,6 +261,7 @@ import {
   getTotalLabel,
   getDoneLabel,
   defaultTotal,
+  isWholeUnitType,
 } from '@/types/media'
 import { applyMediaStatusChange } from '@/utils/mediaStatus'
 
@@ -346,7 +347,7 @@ function resetForm() {
 function onTypeChange(type: MediaType) {
   form.value.type = type
   form.value.total = defaultTotal(type)
-  if (type === 'movie') {
+  if (isWholeUnitType(type)) {
     form.value.done = form.value.status === 'finished' ? 1 : 0
   } else if (form.value.done > form.value.total) {
     form.value.done = form.value.total
@@ -370,9 +371,9 @@ function onStatusChange(status: MediaStatus) {
 function normalizeTotal() {
   let value = Number(form.value.total)
   if (!Number.isFinite(value) || value < 1) {
-    value = form.value.type === 'movie' ? 1 : defaultTotal(form.value.type)
+    value = isWholeUnitType(form.value.type) ? 1 : defaultTotal(form.value.type)
   }
-  if (form.value.type === 'movie') value = 1
+  if (isWholeUnitType(form.value.type)) value = 1
   form.value.total = Math.floor(value)
   if (form.value.done > form.value.total) {
     form.value.done = form.value.total
@@ -387,11 +388,11 @@ function normalizeDone() {
 }
 
 function incrementTotal() {
-  if (form.value.type !== 'movie') form.value.total++
+  if (!isWholeUnitType(form.value.type)) form.value.total++
 }
 
 function decrementTotal() {
-  if (form.value.type === 'movie') return
+  if (isWholeUnitType(form.value.type)) return
   if (form.value.total > 1) {
     form.value.total--
     if (form.value.done > form.value.total) {

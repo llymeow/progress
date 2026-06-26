@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import type { MediaItem, MediaStatus } from '@/types/media'
+import { isWholeUnitType } from '@/types/media'
 
 export function applyMediaStatusChange(item: MediaItem, status: MediaStatus): MediaItem {
   const updated: MediaItem = { ...item, status }
@@ -11,7 +12,7 @@ export function applyMediaStatusChange(item: MediaItem, status: MediaStatus): Me
     if (!updated.startDate) {
       updated.startDate = dayjs().format('YYYY-MM-DD')
     }
-    if (updated.type === 'movie') {
+    if (isWholeUnitType(updated.type)) {
       updated.total = 1
       updated.done = 0
     }

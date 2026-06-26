@@ -68,7 +68,7 @@
               />
             </svg>
             <div class="progress-text" :class="{ 'progress-text--want': media.status === 'want' }">
-              <template v-if="media.type === 'movie'">
+              <template v-if="isWholeUnitType(media.type)">
                 <span class="progress-done">{{ media.done >= media.total ? '✓' : '—' }}</span>
               </template>
               <template v-else-if="media.status === 'want'">
@@ -133,7 +133,7 @@ import { computed, ref, onBeforeUnmount } from 'vue'
 import dayjs from 'dayjs'
 import { showConfirmDialog } from 'vant'
 import type { MediaItem, MediaStatus } from '@/types/media'
-import { MEDIA_TYPE_LABELS, getProgressUnit } from '@/types/media'
+import { MEDIA_TYPE_LABELS, getProgressUnit, isWholeUnitType, getFinishedText } from '@/types/media'
 import { getStatusActions } from '@/utils/mediaStatus'
 
 interface StatusAction {
@@ -188,8 +188,8 @@ const dateRangeText = computed(() => {
 })
 
 const progressText = computed(() => {
-  if (props.media.type === 'movie') {
-    if (props.media.status === 'finished') return '已观看'
+  if (isWholeUnitType(props.media.type)) {
+    if (props.media.status === 'finished') return getFinishedText(props.media.type)
     return ''
   }
   if (props.media.status === 'want') return ''
@@ -367,6 +367,11 @@ function confirmDelete() {
 .type-badge--tv {
   background: rgba(88, 86, 214, 0.15);
   color: #5856d6;
+}
+
+.type-badge--book {
+  background: rgba(52, 199, 89, 0.15);
+  color: #34c759;
 }
 
 .media-title {
